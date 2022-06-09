@@ -12,10 +12,11 @@ typedef enum {
 
 class Bytecode {
 	public:
-		int addValue(double);
-		void addOp(uint8_t);
+		int addValue(double, std::size_t);
+		void addOp(uint8_t, std::size_t);
 		void debug();
 		std::vector<uint8_t> code;
+		std::vector<std::size_t> lines;
 		std::vector<double> values;
 		
 	private:
