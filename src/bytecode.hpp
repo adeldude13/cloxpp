@@ -9,6 +9,9 @@ typedef enum {
 	CONSTANT,
 	NEGATE,
 	ADD,
+	SUB,
+	MULTI,
+	DIV,
 	RETURN,
 } OPCODE;
 
