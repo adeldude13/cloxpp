@@ -7,7 +7,7 @@
 typedef enum {
 	SUCCESS,
 	COMPILE_ERROR,
-	INTERPRET_ERROR,
+	RUN_ERROR,
 } STATUS;
 
 

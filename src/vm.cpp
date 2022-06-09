@@ -23,6 +23,17 @@ STATUS VM::run() {
 				st.pop();st.push(-t);
 				break;
 			}
+			case ADD: {
+				double v1 = st.top();
+				st.pop();
+				if(st.empty()) {
+					std::cout << "Wrong Use Of The Plus Operator" << std::endl;
+					return RUN_ERROR;
+				}
+				double v2 = st.top();
+				st.pop();
+				st.push(v1 + v2);
+			}
 			case RETURN:
 				goto END;	
 		}

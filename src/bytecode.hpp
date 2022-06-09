@@ -8,6 +8,7 @@
 typedef enum {
 	CONSTANT,
 	NEGATE,
+	ADD,
 	RETURN,
 } OPCODE;
 
