@@ -18,3 +18,6 @@ void Bytecode::addOp(uint8_t op, std::size_t line) {
 	this->lines.push_back(line);
 }
 
+double Bytecode::getValue(std::size_t index) {
+	return this->values[this->code[index+1]];
+}
