@@ -10,6 +10,7 @@ int Bytecode::addConst(double value, std::size_t line) {
 
 int Bytecode::addValue(double value, std::size_t line) {
 	this->values.push_back(value);
+	this->lines.push_back(line);
 	return this->values.size() - 1;
 }
 

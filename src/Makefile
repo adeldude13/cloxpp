@@ -1,6 +1,6 @@
 CC := clang++
-cfiles := main.cpp bytecode.cpp dissassemble.cpp vm.cpp
-hfiles := bytecode.hpp dissassemble.hpp vm.hpp
+cfiles := main.cpp bytecode.cpp vm.cpp scanner.cpp
+hfiles := bytecode.hpp vm.hpp scanner.hpp
 files := $(cfiles) $(hfiles) Makefile
 out := ../bin/main
 args := -O0 -ggdb3 -Wall -Wextra -o $(out)
