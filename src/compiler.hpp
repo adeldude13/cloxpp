@@ -7,6 +7,20 @@
 #include <string>
 #include <inttypes.h>
 
+typedef enum {
+ 	P_NONE,
+  P_ASSIGN,  //			=
+  P_OR,          // or
+  P_AND,         // and
+  P_EQUAL,    // == !=
+  P_COMPARE,  // < > <= >=
+  P_TERM,        // + -
+  P_FACTOR,      // * /
+  P_UNARY,       // ! -
+  P_CALL,        // . ()
+  P_PRIMARY
+} Prio;
+
 
 class Compiler {
 	public:
@@ -21,15 +35,27 @@ class Compiler {
 		int addValue(double); // adds value returning its index
 		void addConst(double); // adds value with CONSTANT opcode
 
+		typedef struct {
+			void (Compiler::*prev)(void);
+			void (Compiler::*mid)(void);
+			Prio prio;
+		} parseRule;
 
+		void parsePrio(Prio);
 		void expr();
 		void number();
 		void grouping();
 		void unary();
+		void binary();
+		parseRule getRule(TokenType t) {
+			return p_map[t];	
+		}
 	private:
+
 		Token curr, prev;
 		Scanner *scanner;
 		Bytecode *bytecode;
+		std::unordered_map<TokenType, parseRule> p_map;
 };
 
 

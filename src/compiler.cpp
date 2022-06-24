@@ -9,6 +9,48 @@
 Compiler::Compiler(std::string src) {
 	scanner = new Scanner(src);
 	bytecode = new Bytecode;
+	typedef Compiler C;
+
+	p_map[T_NUM] = {&C::number, NULL, P_NONE}; 
+	p_map[T_STR] = {NULL, NULL, P_NONE}; 
+	p_map[T_IDEN] = {NULL, NULL, P_NONE}; 
+	p_map[T_BANG] = {NULL, NULL, P_NONE}; 
+	p_map[T_BANG_EQUAL] = {NULL, NULL, P_NONE}; 
+	p_map[T_EQUAL_EQUAL] = {NULL, NULL, P_NONE}; 
+	p_map[T_LESS] = {NULL, NULL, P_NONE}; 
+	p_map[T_GREATER] = {NULL, NULL, P_NONE}; 
+	p_map[T_LESS_EQUAL] = {NULL, NULL, P_NONE}; 
+	p_map[T_GREATER_EQUAL] = {NULL, NULL, P_NONE}; 
+	p_map[T_PLUS] = {NULL, &C::binary, P_TERM}; 
+	p_map[T_MINUS] = {&C::unary, &C::binary, P_UNARY}; 
+	p_map[T_STAR] = {NULL, &C::binary, P_FACTOR}; 
+	p_map[T_SLASH] = {NULL, &C::binary, P_FACTOR}; 
+	p_map[T_EQUAL] = {NULL, NULL, P_NONE}; 
+	p_map[T_LEFT_P] = {&C::grouping, NULL, P_NONE}; 
+	p_map[T_RIGHT_P] = {NULL, NULL, P_NONE}; 
+	p_map[T_LEFT_B] = {NULL, NULL, P_NONE}; 
+	p_map[T_RIGHT_B] = {NULL, NULL, P_NONE}; 
+	p_map[T_DOT] = {NULL, NULL, P_NONE}; 
+	p_map[T_COMMA] = {NULL, NULL, P_NONE}; 
+	p_map[T_SEMICOLON] = {NULL, NULL, P_NONE}; 
+	p_map[T_CLASS] = {NULL, NULL, P_NONE}; 
+	p_map[T_IF] = {NULL, NULL, P_NONE}; 
+	p_map[T_ELSE] = {NULL, NULL, P_NONE}; 
+	p_map[T_FOR] = {NULL, NULL, P_NONE}; 
+	p_map[T_WHILE] = {NULL, NULL, P_NONE}; 
+	p_map[T_VAR] = {NULL, NULL, P_NONE}; 
+	p_map[T_RETURN] = {NULL, NULL, P_NONE}; 
+	p_map[T_SUPER] = {NULL, NULL, P_NONE}; 
+	p_map[T_OR] = {NULL, NULL, P_NONE}; 
+	p_map[T_AND] = {NULL, NULL, P_NONE}; 
+	p_map[T_NIL] = {NULL, NULL, P_NONE}; 
+	p_map[T_TRUE] = {NULL, NULL, P_NONE}; 
+	p_map[T_FALSE] = {NULL, NULL, P_NONE}; 
+	p_map[T_FUN] = {NULL, NULL, P_NONE}; 
+	p_map[T_PRINT] = {NULL, NULL, P_NONE}; 
+	p_map[T_THIS] = {NULL, NULL, P_NONE}; 
+	p_map[T_ERROR] = {NULL, NULL, P_NONE}; 
+	p_map[T_EOF] = {NULL, NULL, P_NONE}; 
 }
 
 void Compiler::next() {
@@ -59,10 +101,13 @@ void Compiler::addConst(double v) {
 	this->addBytes(CONSTANT, addValue(v));
 }
 
+void Compiler::parsePrio(Prio p) {
+	
+}
 
 
 void Compiler::expr() {
-	// TODO
+	parsePrio(P_ASSIGN);
 }
 
 // std::stof() -- String to Double
@@ -85,6 +130,20 @@ void Compiler::unary() {
 		case T_MINUS:
 			this->addByte(NEGATE);
 			break;
+		default:
+			return;
+	}
+}
+
+void Compiler::binary() {
+	TokenType op = prev.type;
+	parseRule rule = getRule(op);
+	parsePrio((Prio)(rule.prio + 1));
+	switch(op) {
+		case T_PLUS: this->addByte(ADD); return;
+		case T_MINUS: this->addByte(SUB); return;
+		case T_STAR: this->addByte(MULTI); return;
+		case T_SLASH: this->addByte(DIV); return;
 		default:
 			return;
 	}
