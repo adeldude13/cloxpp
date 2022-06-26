@@ -10,7 +10,7 @@ Compiler::Compiler(std::string src) {
 	scanner = new Scanner(src);
 	bytecode = new Bytecode;
 	typedef Compiler C;
-
+	
 	p_map[T_NUM] = {&C::number, NULL, P_NONE}; 
 	p_map[T_STR] = {NULL, NULL, P_NONE}; 
 	p_map[T_IDEN] = {NULL, NULL, P_NONE}; 
@@ -67,10 +67,12 @@ void Compiler::errorAtCurr() {
 
 void Compiler::error(std::string message, int line) {
 	std::cout << message << " line: " << line << std::endl; 
+	status = false;
 }
 
 void Compiler::errorM(std::string message) {
 	std::cout << message << std::endl;
+	status = false;
 }
 
 void Compiler::errorAtPrev(std::string m) {
@@ -102,7 +104,16 @@ void Compiler::addConst(double v) {
 }
 
 void Compiler::parsePrio(Prio p) {
-	
+	this->next();
+	parseRule token = this->getRule(prev.type);
+	if(token.prev == NULL) {
+		errorAtPrev("Expected Expression");
+	}
+	(this->*token.prev)(); // unary -- grouping
+	while(p <= getRule(curr.type).prio) {
+		this->next();
+		(this->*(getRule(prev.type).mid))();
+	}
 }
 
 
@@ -117,15 +128,16 @@ void Compiler::number() {
 }
 
 void Compiler::grouping() {
-	this->expr();
-	if(prev.type != T_RIGHT_P) {
+	this->expr();	
+	if(curr.type != T_RIGHT_P) {
 		errorAtPrev("Expected ')' After Expression");
 	}
+	this->next();
 }
 
 void Compiler::unary() {
 	TokenType op = prev.type;
-	this->expr();
+	parsePrio(P_UNARY);	
 	switch(op) {
 		case T_MINUS:
 			this->addByte(NEGATE);
@@ -147,4 +159,16 @@ void Compiler::binary() {
 		default:
 			return;
 	}
+}
+
+Bytecode *Compiler::compile() {
+	this->next();
+	this->expr();
+	this->addByte(RETURN);
+	return bytecode;
+}
+
+void Compiler::free() {
+	delete scanner;
+	delete bytecode;
 }

@@ -4,12 +4,18 @@
 #include "vm.hpp"
 #include "bytecode.hpp"
 
-VM::VM(Bytecode *block) {
-	bytecode = block;
+VM::VM() {
 }
 
 
-STATUS VM::run() {
+STATUS VM::run(Bytecode *bytecode) {
+	#define ARITH(op) do { \
+		double b = st.top();st.pop(); \
+		double a = st.top();st.pop(); \
+		st.push(a op b); \
+	} while(0)
+
+
 	std::size_t curr = 0;
 	while(curr < bytecode->code.size()) {
 		switch(bytecode->code[curr]) {
@@ -22,61 +28,12 @@ STATUS VM::run() {
 			case NEGATE: {
 				double t = st.top();
 				st.pop();st.push(-t);
-				break;
 			}
-		
-			case ADD: {
-				double v1 = st.top();
-				st.pop();
-				if(st.empty()) {
-					std::cout << "Wrong Use Of The Plus Operator" << std::endl;
-					return RUN_ERROR;
-				}
-				double v2 = st.top();
-				st.pop();
-				st.push(v2 + v1);
-				break;
-			}
-		
-
-			case SUB: {
-				double v1 = st.top();
-				st.pop();
-				if(st.empty()) {
-					std::cout << "Wrong Use Of The Minus Operator" << std::endl;
-					return RUN_ERROR;
-				}
-				double v2 = st.top();
-				st.pop();
-				st.push(v2 - v1);
-				break;
-			}
-
-			case MULTI: {
-				double v1 = st.top();
-				st.pop();
-				if(st.empty()) {
-					std::cout << "Wrong Use Of The Minus Operator" << std::endl;
-					return RUN_ERROR;
-				}
-				double v2 = st.top();
-				st.pop();
-				st.push(v2 * v1);
-				break;
-			}
-
-			case DIV: {
-				double v1 = st.top();
-				st.pop();
-				if(st.empty()) {
-					std::cout << "Wrong Use Of The Minus Operator" << std::endl;
-					return RUN_ERROR;
-				}
-				double v2 = st.top();
-				st.pop();
-				st.push(v2 / v1);
-				break;
-			}
+			break;
+			case ADD: ARITH(+); break;
+			case SUB: ARITH(-); break;
+			case MULTI: ARITH(*); break;
+			case DIV: ARITH(/); break;
 
 			case RETURN:
 				goto END;	
@@ -84,8 +41,8 @@ STATUS VM::run() {
 
 		curr++;
 	}
+#undef ARITH
 END:
-	this->printStack();
 	return SUCCESS;
 }
 
@@ -95,4 +52,16 @@ void VM::printStack() {
 		std::cout << temp.top() << std::endl;
 		temp.pop();
 	}
+}
+
+STATUS VM::interpret(std::string source) {
+	Compiler compiler(source);
+	Bytecode *c = compiler.compile();
+	if(compiler.status == false) {
+		return COMPILE_ERROR;
+	}
+	STATUS status = run(c);
+	this->printStack();
+	compiler.free();
+	return status;
 }

@@ -19,6 +19,7 @@ Token::Token(TokenType t, int line, std::string content) {
 }
 
 Scanner::Scanner(std::string str) {
+	line = 0;
 	this->make(str);
 }
 

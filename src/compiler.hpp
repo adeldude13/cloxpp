@@ -25,6 +25,8 @@ typedef enum {
 class Compiler {
 	public:
 		Compiler(std::string);
+		Bytecode *compile();	
+		
 		void next();
 		void errorAtCurr();
 		void error(std::string, int);
@@ -50,8 +52,10 @@ class Compiler {
 		parseRule getRule(TokenType t) {
 			return p_map[t];	
 		}
+		bool status = true;
+		
+		void free();
 	private:
-
 		Token curr, prev;
 		Scanner *scanner;
 		Bytecode *bytecode;

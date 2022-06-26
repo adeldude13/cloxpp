@@ -15,14 +15,8 @@ void repl() {
 		if(line == "q") {
 			return;
 		}
-		Scanner scanner(line);
-		while(1) {
-			t = scanner.fetch();
-			if(t.type == T_EOF) {
-				break;
-			}
-			std::cout << t.type << " " << t.line << " " << t.content << std::endl;
-		}
+		VM RVM;
+		RVM.interpret(line);
 	}
 }
 

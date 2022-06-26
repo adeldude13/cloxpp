@@ -31,7 +31,6 @@ class Scanner {
 	public:
 		Scanner(std::string);
 		void make(std::string);
-		int line;
 		Token fetch();
 		bool isAtEnd() { return curr >= source.size(); }
 		Token makeToken(TokenType t, std::string v="") {
@@ -39,6 +38,7 @@ class Scanner {
 		}
 		Token comment(), bang(), equal(), bigger(), smaller(), strings(), number(), keyword();
 	private:
+		int line;
 		std::size_t curr = 0;
 		std::string source = "";
 		std::unordered_map<std::string, TokenType> i_map;

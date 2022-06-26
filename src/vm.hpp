@@ -3,6 +3,7 @@
 #include <stack>
 
 #include "bytecode.hpp"
+#include "compiler.hpp"
 
 typedef enum {
 	SUCCESS,
@@ -13,11 +14,11 @@ typedef enum {
 
 class VM {
 	public:
-		VM(Bytecode *);
-		STATUS run();
+		VM();
+		STATUS run(Bytecode *);
+		STATUS interpret(std::string source);
 		void printStack();
 	private:
-		Bytecode *bytecode;
 		std::stack<double> st;
 };
 
