@@ -8,7 +8,7 @@
 typedef enum {
 	SUCCESS,
 	COMPILE_ERROR,
-	RUN_ERROR,
+	RUNTIME_ERROR,
 } STATUS;
 
 
@@ -19,7 +19,7 @@ class VM {
 		STATUS interpret(std::string source);
 		void printStack();
 	private:
-		std::stack<double> st;
+		std::stack<Value> st;
 };
 
 #endif

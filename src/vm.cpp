@@ -7,12 +7,14 @@
 VM::VM() {
 }
 
-
 STATUS VM::run(Bytecode *bytecode) {
+	#define PUSH(v) do { st.push(Value(v)); } while(0)
+	#define runTimeError(message) do { std::cout << "RunTime Error: " << message << std::endl; goto ERR; } while(0)
 	#define ARITH(op) do { \
-		double b = st.top();st.pop(); \
-		double a = st.top();st.pop(); \
-		st.push(a op b); \
+		Value b = st.top();st.pop(); \
+		Value a = st.top();st.pop(); \
+		if(!(a.type == b.type && (a.isNumber() && b.isNumber()))) runTimeError("RunTime Error: Cant Have Arithmetic on non numeric values");\
+		st.push(Value(a.getNumber() op b.getNumber())); \
 	} while(0)
 
 
@@ -20,21 +22,27 @@ STATUS VM::run(Bytecode *bytecode) {
 	while(curr < bytecode->code.size()) {
 		switch(bytecode->code[curr]) {
 			case CONSTANT: {
-				double v = bytecode->getValue(curr++);
+				Value v = bytecode->getValue(curr++);
 				st.push(v);
 				break;
 			}
 			
 			case NEGATE: {
-				double t = st.top();
-				st.pop();st.push(-t);
+				Value t = st.top();
+				if(!t.isNumber()) { runTimeError("Cant Negate A none Numeric Value"); }
+				st.pop();st.push(Value(-t.getNumber()));
 			}
 			break;
 			case ADD: ARITH(+); break;
 			case SUB: ARITH(-); break;
 			case MULTI: ARITH(*); break;
 			case DIV: ARITH(/); break;
+			
+			case TRUE: PUSH(true); break;
+			case FALSE: PUSH(false); break;
+			case NIL: st.push(Value()); break;
 
+			case PRINT: st.top().print();
 			case RETURN:
 				goto END;	
 		}
@@ -42,14 +50,19 @@ STATUS VM::run(Bytecode *bytecode) {
 		curr++;
 	}
 #undef ARITH
+
+ERR:
+		return RUNTIME_ERROR;
+
 END:
 	return SUCCESS;
 }
 
 void VM::printStack() {
-	std::stack<double> temp = st;
+	std::stack<Value> temp = st;
 	while(!temp.empty()) {
-		std::cout << temp.top() << std::endl;
+		temp.top().print();
+		std::cout << "\n";
 		temp.pop();
 	}
 }

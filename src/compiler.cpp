@@ -43,9 +43,9 @@ Compiler::Compiler(std::string src) {
 	p_map[T_SUPER] = {NULL, NULL, P_NONE}; 
 	p_map[T_OR] = {NULL, NULL, P_NONE}; 
 	p_map[T_AND] = {NULL, NULL, P_NONE}; 
-	p_map[T_NIL] = {NULL, NULL, P_NONE}; 
-	p_map[T_TRUE] = {NULL, NULL, P_NONE}; 
-	p_map[T_FALSE] = {NULL, NULL, P_NONE}; 
+	p_map[T_NIL] = {&Compiler::literal, NULL, P_NONE}; 
+	p_map[T_TRUE] = {&Compiler::literal, NULL, P_NONE}; 
+	p_map[T_FALSE] = {&Compiler::literal, NULL, P_NONE}; 
 	p_map[T_FUN] = {NULL, NULL, P_NONE}; 
 	p_map[T_PRINT] = {NULL, NULL, P_NONE}; 
 	p_map[T_THIS] = {NULL, NULL, P_NONE}; 
@@ -89,7 +89,7 @@ void Compiler::addBytes(uint8_t b, uint8_t a) {
 	this->addByte(a);
 }
 
-int Compiler::addValue(double v) {
+int Compiler::addValue(Value v) {
 	bytecode->values.push_back(v);
 	int ret = bytecode->values.size() - 1;
 	if(ret > 255) {
@@ -99,7 +99,7 @@ int Compiler::addValue(double v) {
 	return ret;	
 }
 
-void Compiler::addConst(double v) {
+void Compiler::addConst(Value v) {
 	this->addBytes(CONSTANT, addValue(v));
 }
 
@@ -124,7 +124,7 @@ void Compiler::expr() {
 // std::stof() -- String to Double
 void Compiler::number() {
 	double v = std::stof(prev.content);
-	this->addConst(v);
+	this->addConst(Value(v));
 }
 
 void Compiler::grouping() {
@@ -156,6 +156,16 @@ void Compiler::binary() {
 		case T_MINUS: this->addByte(SUB); return;
 		case T_STAR: this->addByte(MULTI); return;
 		case T_SLASH: this->addByte(DIV); return;
+		default:
+			return;
+	}
+}
+
+void Compiler::literal() {
+	switch(prev.type) {
+		case T_NIL: this->addByte(NIL); break;
+		case T_TRUE: this->addByte(TRUE); break;
+		case T_FALSE: this->addByte(FALSE); break;
 		default:
 			return;
 	}

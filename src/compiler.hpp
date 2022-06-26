@@ -34,8 +34,8 @@ class Compiler {
 		void errorAtPrev(std::string);
 		void addByte(uint8_t); // add a byte to bytecode
 		void addBytes(uint8_t, uint8_t); // add a bytes to bytecode
-		int addValue(double); // adds value returning its index
-		void addConst(double); // adds value with CONSTANT opcode
+		int addValue(Value); // adds value returning its index
+		void addConst(Value); // adds value with CONSTANT opcode
 
 		typedef struct {
 			void (Compiler::*prev)(void);
@@ -49,6 +49,7 @@ class Compiler {
 		void grouping();
 		void unary();
 		void binary();
+		void literal();
 		parseRule getRule(TokenType t) {
 			return p_map[t];	
 		}
