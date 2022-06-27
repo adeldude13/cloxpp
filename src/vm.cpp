@@ -8,6 +8,7 @@ VM::VM() {
 }
 
 STATUS VM::run(Bytecode *bytecode) {
+
 	#define PUSH(v) do { st.push(Value(v)); } while(0)
 	#define runTimeError(message) do { std::cout << "RunTime Error: " << message << std::endl; goto ERR; } while(0)
 	#define ARITH(op) do { \
@@ -16,7 +17,12 @@ STATUS VM::run(Bytecode *bytecode) {
 		if(!(a.type == b.type && (a.isNumber() && b.isNumber()))) runTimeError("RunTime Error: Cant Have Arithmetic on non numeric values");\
 		st.push(Value(a.getNumber() op b.getNumber())); \
 	} while(0)
-
+	#define NOT() do { \
+		if(!st.top().isBool() && !st.top().isNil()) runTimeError("not operator on a non boolean or nil value!"); \
+		Value v = st.top();st.pop(); \
+		if(v.isNil()) st.push(true); break; \
+		st.push(!v.b); \
+	} while(0)
 
 	std::size_t curr = 0;
 	while(curr < bytecode->code.size()) {
@@ -41,8 +47,14 @@ STATUS VM::run(Bytecode *bytecode) {
 			case TRUE: PUSH(true); break;
 			case FALSE: PUSH(false); break;
 			case NIL: st.push(Value()); break;
-
-			case PRINT: st.top().print();
+			case NOT:	{
+					if(!st.top().isNil() && !st.top().isBool()) runTimeError("Not Operation on a non Boolean/Nil value");
+					Value v = st.top();st.pop();
+					if(v.isBool()) {st.push(!v.b);break;}
+					st.push(true); // if it was nil
+				}
+				break;
+			case PRINT: st.top().print(); break;
 			case RETURN:
 				goto END;	
 		}

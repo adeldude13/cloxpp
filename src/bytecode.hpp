@@ -18,6 +18,7 @@ typedef enum {
 	TRUE,
 	FALSE,
 	NIL,
+	NOT,
 	RETURN,
 } OPCODE;
 

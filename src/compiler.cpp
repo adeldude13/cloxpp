@@ -14,7 +14,7 @@ Compiler::Compiler(std::string src) {
 	p_map[T_NUM] = {&C::number, NULL, P_NONE}; 
 	p_map[T_STR] = {NULL, NULL, P_NONE}; 
 	p_map[T_IDEN] = {NULL, NULL, P_NONE}; 
-	p_map[T_BANG] = {NULL, NULL, P_NONE}; 
+	p_map[T_BANG] = {&C::unary, NULL, P_NONE}; 
 	p_map[T_BANG_EQUAL] = {NULL, NULL, P_NONE}; 
 	p_map[T_EQUAL_EQUAL] = {NULL, NULL, P_NONE}; 
 	p_map[T_LESS] = {NULL, NULL, P_NONE}; 
@@ -139,9 +139,8 @@ void Compiler::unary() {
 	TokenType op = prev.type;
 	parsePrio(P_UNARY);	
 	switch(op) {
-		case T_MINUS:
-			this->addByte(NEGATE);
-			break;
+		case T_MINUS: this->addByte(NEGATE); break;
+		case T_BANG: this->addByte(NOT); break;
 		default:
 			return;
 	}
