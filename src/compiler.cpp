@@ -15,12 +15,12 @@ Compiler::Compiler(std::string src) {
 	p_map[T_STR] = {NULL, NULL, P_NONE}; 
 	p_map[T_IDEN] = {NULL, NULL, P_NONE}; 
 	p_map[T_BANG] = {&C::unary, NULL, P_NONE}; 
-	p_map[T_BANG_EQUAL] = {NULL, NULL, P_NONE}; 
-	p_map[T_EQUAL_EQUAL] = {NULL, NULL, P_NONE}; 
-	p_map[T_LESS] = {NULL, NULL, P_NONE}; 
-	p_map[T_GREATER] = {NULL, NULL, P_NONE}; 
-	p_map[T_LESS_EQUAL] = {NULL, NULL, P_NONE}; 
-	p_map[T_GREATER_EQUAL] = {NULL, NULL, P_NONE}; 
+	p_map[T_BANG_EQUAL] = {NULL, &C::binary, P_EQUAL}; 
+	p_map[T_EQUAL_EQUAL] = {NULL, &C::binary, P_EQUAL}; 
+	p_map[T_LESS] = {NULL, &C::binary, P_COMPARE}; 
+	p_map[T_GREATER] = {NULL, &C::binary, P_COMPARE}; 
+	p_map[T_LESS_EQUAL] = {NULL, &C::binary, P_COMPARE}; 
+	p_map[T_GREATER_EQUAL] = {NULL, &C::binary, P_COMPARE}; 
 	p_map[T_PLUS] = {NULL, &C::binary, P_TERM}; 
 	p_map[T_MINUS] = {&C::unary, &C::binary, P_UNARY}; 
 	p_map[T_STAR] = {NULL, &C::binary, P_FACTOR}; 
@@ -155,6 +155,12 @@ void Compiler::binary() {
 		case T_MINUS: this->addByte(SUB); return;
 		case T_STAR: this->addByte(MULTI); return;
 		case T_SLASH: this->addByte(DIV); return;
+		case T_EQUAL_EQUAL: this->addByte(EQUAL); return;
+		case T_BANG_EQUAL: this->addBytes(EQUAL, NOT); return;
+		case T_GREATER_EQUAL: this->addBytes(LESS, NOT); return;
+		case T_LESS_EQUAL: this->addBytes(GREATER, NOT); return;
+		case T_GREATER: this->addByte(GREATER); return;
+		case T_LESS: this->addByte(LESS); return;
 		default:
 			return;
 	}

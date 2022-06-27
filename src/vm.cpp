@@ -7,21 +7,38 @@
 VM::VM() {
 }
 
+bool VM::COMP() {
+	Value b = st.top();st.pop();
+	Value a = st.top();st.pop();
+	if(a.type != b.type) st.push(false);
+	switch(a.type) {
+		case V_BOOL: return a.b == b.b;
+		case V_NUM: return a.number == b.number;
+		case V_NIL: return true;
+		default:
+			break;
+	}
+	return false;
+}
+
 STATUS VM::run(Bytecode *bytecode) {
 
 	#define PUSH(v) do { st.push(Value(v)); } while(0)
+	
 	#define runTimeError(message) do { std::cout << "RunTime Error: " << message << std::endl; goto ERR; } while(0)
+	
 	#define ARITH(op) do { \
 		Value b = st.top();st.pop(); \
 		Value a = st.top();st.pop(); \
 		if(!(a.type == b.type && (a.isNumber() && b.isNumber()))) runTimeError("RunTime Error: Cant Have Arithmetic on non numeric values");\
 		st.push(Value(a.getNumber() op b.getNumber())); \
 	} while(0)
-	#define NOT() do { \
-		if(!st.top().isBool() && !st.top().isNil()) runTimeError("not operator on a non boolean or nil value!"); \
-		Value v = st.top();st.pop(); \
-		if(v.isNil()) st.push(true); break; \
-		st.push(!v.b); \
+	
+	#define COMPARE(op) do { \
+		Value b = st.top();st.pop(); \
+		Value a = st.top();st.pop(); \
+		if(!a.isNumber() || !b.isNumber()) runTimeError("Cant Compare Non Numeric Values"); \
+		st.push(a.number op b.number); \
 	} while(0)
 
 	std::size_t curr = 0;
@@ -55,6 +72,9 @@ STATUS VM::run(Bytecode *bytecode) {
 				}
 				break;
 			case PRINT: st.top().print(); break;
+			case EQUAL: st.push(this->COMP());break;
+			case LESS: COMPARE(<); break;
+			case GREATER: COMPARE(>); break;
 			case RETURN:
 				goto END;	
 		}

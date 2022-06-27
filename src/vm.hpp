@@ -18,6 +18,7 @@ class VM {
 		STATUS run(Bytecode *);
 		STATUS interpret(std::string source);
 		void printStack();
+		bool COMP();
 	private:
 		std::stack<Value> st;
 };
