@@ -4,7 +4,10 @@
 #include "vm.hpp"
 #include "bytecode.hpp"
 
+#define DEBUG
+
 VM::VM() {
+	strHead = NULL;
 }
 
 bool VM::COMP() {
@@ -15,6 +18,7 @@ bool VM::COMP() {
 		case V_BOOL: return a.b == b.b;
 		case V_NUM: return a.number == b.number;
 		case V_NIL: return true;
+		case V_STR: return a.getStr() == b.getStr();
 		default:
 			break;
 	}
@@ -46,6 +50,13 @@ STATUS VM::run(Bytecode *bytecode) {
 		switch(bytecode->code[curr]) {
 			case CONSTANT: {
 				Value v = bytecode->getValue(curr++);
+				if(v.isStr()) {
+					if(strHead == NULL) {
+						strHead = v.str;
+					} else {
+						strHead->addObj(v.str);
+					}
+				}
 				st.push(v);
 				break;
 			}
@@ -56,7 +67,20 @@ STATUS VM::run(Bytecode *bytecode) {
 				st.pop();st.push(Value(-t.getNumber()));
 			}
 			break;
-			case ADD: ARITH(+); break;
+			case ADD: {
+				Value b = st.top();st.pop();
+				Value a = st.top();st.pop();
+				if(a.type == b.type && a.isStr()) {
+					st.push(Value(a.getStr() + b.getStr()));
+					break;
+				} else {
+					// return values to the stack for arithmtic
+					st.push(a);
+					st.push(b);
+				}
+				ARITH(+); 
+			}
+			break;
 			case SUB: ARITH(-); break;
 			case MULTI: ARITH(*); break;
 			case DIV: ARITH(/); break;
@@ -97,6 +121,19 @@ void VM::printStack() {
 		std::cout << "\n";
 		temp.pop();
 	}
+}
+
+void VM::free() {
+	Str *curr = strHead;
+	while(curr) {
+		Str *temp = curr->next;
+		#ifdef DEBUG
+			std::cout << curr->content << std::endl;
+		#endif
+		delete curr;
+		curr = temp;
+	}
+	strHead = NULL;
 }
 
 STATUS VM::interpret(std::string source) {

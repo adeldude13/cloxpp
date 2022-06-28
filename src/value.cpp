@@ -5,8 +5,16 @@
 
 Str::Str(std::string v) {
 	this->content = v;
+	this->next = NULL;
 }
 
+void Str::addObj(Str *s) {
+	if(this->next == NULL) {
+		this->next = s;
+		return;
+	}
+	this->next->addObj(s);
+}
 
 Value::Value(double number) {
 	this->number = number;
@@ -61,7 +69,7 @@ std::string Value::getNil() {
 	return "Nil";
 }
 
-Str *Value::getStr() {
+std::string Value::getStr() {
 	if(!isStr()) { throw std::runtime_error("Non String Value"); }
-	return this->str;
+	return this->str->content;
 }

@@ -9,10 +9,14 @@ typedef enum {
 	V_STR,
 } ValueType;
 
+class Value;
+
 class Str {
 	public:
 		Str(std::string);
+		void addObj(Str *);
 		std::string content;
+		Str *next;
 };
 
 
@@ -39,7 +43,7 @@ class Value {
 		double getNumber();
 		bool getBool();
 		std::string getNil();
-		Str *getStr();
+		std::string getStr();
 };
 
 

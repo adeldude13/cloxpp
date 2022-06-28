@@ -19,8 +19,10 @@ class VM {
 		STATUS interpret(std::string source);
 		void printStack();
 		bool COMP();
+		void free();
 	private:
 		std::stack<Value> st;
+		Str *strHead;
 };
 
 #endif

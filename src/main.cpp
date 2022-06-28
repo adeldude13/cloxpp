@@ -5,6 +5,7 @@
 
 void repl() {
 	std::string line;
+	VM RVM;
 	while(1) {
 		Token t;
 		std::cout << ">> ";
@@ -13,11 +14,11 @@ void repl() {
 			return;
 		}
 		if(line == "q") {
-			return;
+			break;	
 		}
-		VM RVM;
 		RVM.interpret(line);
 	}
+	RVM.free();
 }
 
 int main() {
