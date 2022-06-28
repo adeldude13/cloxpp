@@ -50,6 +50,7 @@ class Compiler {
 		void unary();
 		void binary();
 		void literal();
+		void str();
 		parseRule getRule(TokenType t) {
 			return p_map[t];	
 		}

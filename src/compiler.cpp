@@ -1,5 +1,6 @@
 #include "compiler.hpp" 
 #include "bytecode.hpp"
+#include "value.hpp"
 
 #include <iostream>
 #include <string>
@@ -12,7 +13,7 @@ Compiler::Compiler(std::string src) {
 	typedef Compiler C;
 	
 	p_map[T_NUM] = {&C::number, NULL, P_NONE}; 
-	p_map[T_STR] = {NULL, NULL, P_NONE}; 
+	p_map[T_STR] = {&C::str, NULL, P_NONE}; 
 	p_map[T_IDEN] = {NULL, NULL, P_NONE}; 
 	p_map[T_BANG] = {&C::unary, NULL, P_NONE}; 
 	p_map[T_BANG_EQUAL] = {NULL, &C::binary, P_EQUAL}; 
@@ -174,6 +175,10 @@ void Compiler::literal() {
 		default:
 			return;
 	}
+}
+
+void Compiler::str() {
+	this->addConst(Value(prev.content));
 }
 
 Bytecode *Compiler::compile() {

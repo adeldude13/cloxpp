@@ -10,7 +10,7 @@ VM::VM() {
 bool VM::COMP() {
 	Value b = st.top();st.pop();
 	Value a = st.top();st.pop();
-	if(a.type != b.type) st.push(false);
+	if(a.type != b.type) return false;
 	switch(a.type) {
 		case V_BOOL: return a.b == b.b;
 		case V_NUM: return a.number == b.number;
