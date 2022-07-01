@@ -28,10 +28,14 @@ class Compiler {
 		Bytecode *compile();	
 		
 		void next();
+		bool match(TokenType);	
+
 		void errorAtCurr();
 		void error(std::string, int);
 		void errorM(std::string);
 		void errorAtPrev(std::string);
+		void semiColon();	
+
 		void addByte(uint8_t); // add a byte to bytecode
 		void addBytes(uint8_t, uint8_t); // add a bytes to bytecode
 		int addValue(Value); // adds value returning its index
@@ -42,15 +46,22 @@ class Compiler {
 			void (Compiler::*mid)(void);
 			Prio prio;
 		} parseRule;
-
+		
 		void parsePrio(Prio);
 		void expr();
+		void decl();
+		void statment();
+		void exprStatment();
+
+		void printStatment();
+
 		void number();
 		void grouping();
 		void unary();
 		void binary();
 		void literal();
 		void str();
+
 		parseRule getRule(TokenType t) {
 			return p_map[t];	
 		}

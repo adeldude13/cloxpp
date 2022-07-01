@@ -99,6 +99,7 @@ STATUS VM::run(Bytecode *bytecode) {
 			case EQUAL: st.push(this->COMP());break;
 			case LESS: COMPARE(<); break;
 			case GREATER: COMPARE(>); break;
+			case POP: st.pop();
 			case RETURN:
 				goto END;	
 		}

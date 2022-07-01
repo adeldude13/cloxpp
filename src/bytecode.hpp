@@ -22,6 +22,7 @@ typedef enum {
 	EQUAL,
 	GREATER,
 	LESS,
+	POP,
 	RETURN,
 } OPCODE;
 

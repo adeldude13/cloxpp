@@ -62,6 +62,12 @@ void Compiler::next() {
 	}
 }
 
+bool Compiler::match(TokenType type) {
+	if(curr.type != type) return false;
+	this->next();
+	return true;
+}
+
 void Compiler::errorAtCurr() {
 	error(curr.content, curr.line);
 }
@@ -78,6 +84,12 @@ void Compiler::errorM(std::string message) {
 
 void Compiler::errorAtPrev(std::string m) {
 	error(m, prev.line);
+}
+
+void Compiler::semiColon() {
+	if(curr.type != T_SEMICOLON) { 
+		errorAtCurr("Expected Token ';' at the end of the Expression");
+	}
 }
 
 void Compiler::addByte(uint8_t b) {
@@ -104,6 +116,7 @@ void Compiler::addConst(Value v) {
 	this->addBytes(CONSTANT, addValue(v));
 }
 
+
 void Compiler::parsePrio(Prio p) {
 	this->next();
 	parseRule token = this->getRule(prev.type);
@@ -122,7 +135,35 @@ void Compiler::expr() {
 	parsePrio(P_ASSIGN);
 }
 
-// std::stof() -- String to Double
+
+void Compiler::decl() {
+	this->statment();
+}
+
+void Compiler::statment() {
+	if(match(T_PRINT)) {
+		this->printStatment();
+	} else {
+		this->exprStatment();
+	}
+}
+
+void Compiler::printStatment() {
+	this->expr();
+	this->semiColon();	
+	this->addByte(PRINT);
+}
+
+void Compiler::exprStatment() {
+	this->expr();
+	this->semiColon();
+	this->addByte(POP);
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Compiler::number() {
 	double v = std::stof(prev.content);
 	this->addConst(Value(v));
@@ -182,9 +223,9 @@ void Compiler::str() {
 }
 
 Bytecode *Compiler::compile() {
-	this->next();
-	this->expr();
-	this->addByte(RETURN);
+	while(!match(T_EOF)) {
+		this->decl();
+	}
 	return bytecode;
 }
 
