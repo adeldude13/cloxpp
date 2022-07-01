@@ -17,6 +17,7 @@ void repl() {
 			break;	
 		}
 		RVM.interpret(line);
+		std::cout << "\n";
 	}
 	RVM.free();
 }

@@ -4,7 +4,6 @@
 #include "vm.hpp"
 #include "bytecode.hpp"
 
-#define DEBUG
 
 VM::VM() {
 	strHead = NULL;
@@ -99,7 +98,19 @@ STATUS VM::run(Bytecode *bytecode) {
 			case EQUAL: st.push(this->COMP());break;
 			case LESS: COMPARE(<); break;
 			case GREATER: COMPARE(>); break;
-			case POP: st.pop();
+			case POP: st.pop(); break;
+			case DEFINE_GLOBAL:{
+				std::string var = (bytecode->getValue(curr++)).getStr();
+
+				global_map[var] = st.top();st.pop(); 
+			}
+			break;
+			case READ_GLOBAL: {
+				std::string var = (bytecode->getValue(curr++)).getStr();
+				if(global_map.find(var) == global_map.end()) runTimeError("Cant Find Varible");
+				st.push(global_map[var]);
+			}
+			break;
 			case RETURN:
 				goto END;	
 		}
@@ -108,11 +119,12 @@ STATUS VM::run(Bytecode *bytecode) {
 	}
 #undef ARITH
 
-ERR:
-		return RUNTIME_ERROR;
 
 END:
 	return SUCCESS;
+
+ERR:
+		return RUNTIME_ERROR;
 }
 
 void VM::printStack() {
@@ -128,9 +140,6 @@ void VM::free() {
 	Str *curr = strHead;
 	while(curr) {
 		Str *temp = curr->next;
-		#ifdef DEBUG
-			std::cout << curr->content << std::endl;
-		#endif
 		delete curr;
 		curr = temp;
 	}
@@ -144,7 +153,6 @@ STATUS VM::interpret(std::string source) {
 		return COMPILE_ERROR;
 	}
 	STATUS status = run(c);
-	this->printStack();
 	compiler.free();
 	return status;
 }

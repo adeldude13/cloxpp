@@ -4,6 +4,7 @@
 
 #include "bytecode.hpp"
 #include "compiler.hpp"
+#include <unordered_map>
 
 typedef enum {
 	SUCCESS,
@@ -23,6 +24,7 @@ class VM {
 	private:
 		std::stack<Value> st;
 		Str *strHead;
+		std::unordered_map<std::string, Value> global_map;
 };
 
 #endif

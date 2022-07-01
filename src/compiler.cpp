@@ -14,7 +14,7 @@ Compiler::Compiler(std::string src) {
 	
 	p_map[T_NUM] = {&C::number, NULL, P_NONE}; 
 	p_map[T_STR] = {&C::str, NULL, P_NONE}; 
-	p_map[T_IDEN] = {NULL, NULL, P_NONE}; 
+	p_map[T_IDEN] = {&C::varible, NULL, P_NONE}; 
 	p_map[T_BANG] = {&C::unary, NULL, P_NONE}; 
 	p_map[T_BANG_EQUAL] = {NULL, &C::binary, P_EQUAL}; 
 	p_map[T_EQUAL_EQUAL] = {NULL, &C::binary, P_EQUAL}; 
@@ -88,8 +88,9 @@ void Compiler::errorAtPrev(std::string m) {
 
 void Compiler::semiColon() {
 	if(curr.type != T_SEMICOLON) { 
-		errorAtCurr("Expected Token ';' at the end of the Expression");
+		errorM("Expected Token ';' at the end of the Expression");
 	}
+	this->next();
 }
 
 void Compiler::addByte(uint8_t b) {
@@ -137,7 +138,11 @@ void Compiler::expr() {
 
 
 void Compiler::decl() {
-	this->statment();
+	if(match(T_VAR)) {
+		this->varDec();
+	} else {
+		this->statment();
+	}
 }
 
 void Compiler::statment() {
@@ -160,7 +165,20 @@ void Compiler::exprStatment() {
 	this->addByte(POP);
 }
 
-
+void Compiler::varDec() {
+	if(curr.type != T_IDEN) {
+		errorM("expected varible name");
+	}
+	this->next();
+	uint8_t index = addValue(Value(prev.content));
+	if(match(T_EQUAL)) {
+		this->expr();
+	} else {
+		this->addByte(NIL);
+	}
+	semiColon();
+	this->addBytes(DEFINE_GLOBAL, index);
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +240,17 @@ void Compiler::str() {
 	this->addConst(Value(prev.content));
 }
 
+void Compiler::varible() {
+	this->namedVar();
+}
+
+void Compiler::namedVar() {
+	uint8_t index = addValue(Value(prev.content));
+	this->addBytes(READ_GLOBAL, index);	
+}
+
 Bytecode *Compiler::compile() {
+	this->next();	
 	while(!match(T_EOF)) {
 		this->decl();
 	}

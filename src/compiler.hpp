@@ -51,9 +51,11 @@ class Compiler {
 		void expr();
 		void decl();
 		void statment();
-		void exprStatment();
 
 		void printStatment();
+		void exprStatment();
+		void varDec();	
+		void namedVar();
 
 		void number();
 		void grouping();
@@ -61,6 +63,7 @@ class Compiler {
 		void binary();
 		void literal();
 		void str();
+		void varible();	
 
 		parseRule getRule(TokenType t) {
 			return p_map[t];	

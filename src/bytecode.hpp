@@ -23,6 +23,8 @@ typedef enum {
 	GREATER,
 	LESS,
 	POP,
+	DEFINE_GLOBAL,
+	READ_GLOBAL,
 	RETURN,
 } OPCODE;
 
