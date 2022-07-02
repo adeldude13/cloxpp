@@ -124,10 +124,14 @@ void Compiler::parsePrio(Prio p) {
 	if(token.prev == NULL) {
 		errorAtPrev("Expected Expression");
 	}
+	canAssign = p <= P_ASSIGN;
 	(this->*token.prev)(); // unary -- grouping
 	while(p <= getRule(curr.type).prio) {
 		this->next();
 		(this->*(getRule(prev.type).mid))();
+	}
+	if(canAssign && match(T_EQUAL)) {
+		errorM("Invalid Assignment Target");
 	}
 }
 
@@ -162,7 +166,6 @@ void Compiler::printStatment() {
 void Compiler::exprStatment() {
 	this->expr();
 	this->semiColon();
-	this->addByte(POP);
 }
 
 void Compiler::varDec() {
@@ -180,6 +183,15 @@ void Compiler::varDec() {
 	this->addBytes(DEFINE_GLOBAL, index);
 }
 
+void Compiler::namedVar() {
+	uint8_t index = addValue(Value(prev.content));
+	if(canAssign && match(T_EQUAL)) {
+		this->expr();
+		this->addBytes(SET_GLOBAL, index);	
+	} else {
+		this->addBytes(READ_GLOBAL, index);
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Compiler::number() {
@@ -244,10 +256,6 @@ void Compiler::varible() {
 	this->namedVar();
 }
 
-void Compiler::namedVar() {
-	uint8_t index = addValue(Value(prev.content));
-	this->addBytes(READ_GLOBAL, index);	
-}
 
 Bytecode *Compiler::compile() {
 	this->next();	

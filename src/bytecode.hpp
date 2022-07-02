@@ -24,6 +24,7 @@ typedef enum {
 	LESS,
 	POP,
 	DEFINE_GLOBAL,
+	SET_GLOBAL,
 	READ_GLOBAL,
 	RETURN,
 } OPCODE;

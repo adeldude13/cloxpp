@@ -111,6 +111,14 @@ STATUS VM::run(Bytecode *bytecode) {
 				st.push(global_map[var]);
 			}
 			break;
+			case SET_GLOBAL: {
+				std::string var = (bytecode->getValue(curr++)).getStr();
+				if(global_map.find(var) == global_map.end()) runTimeError("Cant Find Varible");
+				global_map[var] = st.top();
+				st.pop();
+			}
+			break;
+
 			case RETURN:
 				goto END;	
 		}

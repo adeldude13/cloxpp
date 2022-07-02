@@ -75,6 +75,7 @@ class Compiler {
 		Token curr, prev;
 		Scanner *scanner;
 		Bytecode *bytecode;
+		bool canAssign = false;
 		std::unordered_map<TokenType, parseRule> p_map;
 };
 
